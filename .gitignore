@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Python cache
+.pytest_cache/
+.mypy_cache/
+
+# Environment variables
+.env
+
+# Temporary files
+*.tmp
+
+# DuckDB database
+db/*.db
+db/*.duckdb
+db/*.wal
+
+# Large datasets
+files/archive/*.txt
+files/archive/*.json
