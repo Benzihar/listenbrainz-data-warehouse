@@ -2,37 +2,13 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from config.config import config
+from src.common.audit_utils import log_file_audit
+from src.common.config import config
 
 
-def get_next_load_id(conn):
+def load_source_layer(conn, load_id, logger):
     """
-    Generates the next Load ID in the format:
-    YYYYMMDD100
-    YYYYMMDD101
-    YYYYMMDD102
-    """
-
-    today = datetime.now().strftime("%Y%m%d")
-
-    result = conn.execute(
-        f"""
-        SELECT COALESCE(MAX(load_id), 0)
-        FROM {config.bronze_schema}.{config.source_raw_table}
-        WHERE CAST(load_id AS VARCHAR) LIKE '{today}%'
-        """
-    ).fetchone()
-
-    if result[0] == 0:
-        return int(f"{today}100")
-
-    return result[0] + 1
-
-
-def load_source_layer(conn, logger):
-    """
-    Loads ListenBrainz files from the incoming folder into the
-    Bronze (Source) layer.
+    Loads ListenBrainz files from the incoming folder into the Bronze layer.
     """
 
     incoming_path = Path(config.incoming_folder)
@@ -54,7 +30,8 @@ def load_source_layer(conn, logger):
         logger.info("=" * 80)
         logger.info(f"Processing File : {file.name}")
 
-        load_id = get_next_load_id(conn)
+        start_time = datetime.now()
+
         file_path = file.as_posix()
 
         logger.info(f"Load ID : {load_id}")
@@ -91,7 +68,20 @@ def load_source_layer(conn, logger):
                 """
             ).fetchone()[0]
 
+            end_time = datetime.now()
+
             logger.info(f"Rows Loaded : {rows_loaded:,}")
+
+            log_file_audit(
+                conn=conn,
+                load_id=load_id,
+                file_name=file.name,
+                total_rows=rows_loaded,
+                status="SUCCESS",
+                start_time=start_time,
+                end_time=end_time,
+                error_message=None,
+            )
 
             shutil.move(
                 str(file),
@@ -104,6 +94,19 @@ def load_source_layer(conn, logger):
         except Exception as ex:
 
             conn.execute("ROLLBACK")
+
+            end_time = datetime.now()
+
+            log_file_audit(
+                conn=conn,
+                load_id=load_id,
+                file_name=file.name,
+                total_rows=0,
+                status="FAILED",
+                start_time=start_time,
+                end_time=end_time,
+                error_message=str(ex),
+            )
 
             logger.exception(
                 f"Failed to process '{file.name}'. Error: {ex}"

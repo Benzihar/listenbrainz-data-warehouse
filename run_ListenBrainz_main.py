@@ -1,11 +1,17 @@
-from config.config import config
-from src.create_db import (
+from src.common.config import config
+from src.database.create_db import (
     get_connection,
     create_schemas,
-    create_source_tables
+    create_source_tables,
+    create_silver_tables,
+    create_audit_tables
 )
-from src.br_extract_lb_music import load_source_layer
-from src.generate_logs import get_logger
+
+from src.bronze.br_extract_lb_music import load_source_layer
+from src.silver.load_dim_user import load_dim_user
+
+from src.common.generate_logs import get_logger
+from src.common.etl_utils import generate_load_id
 
 
 def main():
@@ -22,6 +28,7 @@ def main():
     logger.info(f"Bronze Schema   : {config.bronze_schema}")
     logger.info(f"Silver Schema   : {config.silver_schema}")
     logger.info(f"Gold Schema     : {config.gold_schema}")
+    logger.info(f"Audit Schema     : {config.audit_schema}")
 
     logger.info(f"Incoming Folder : {config.incoming_folder}")
     logger.info(f"Archive Folder  : {config.archive_folder}")
@@ -34,16 +41,40 @@ def main():
         # Establish database connection
         conn = get_connection(logger)
 
-        # Create schemas
+        # Generate one Load ID for the complete ETL execution
+        load_id = generate_load_id()
+
+        logger.info(f"ETL Load ID : {load_id}")
+
+        # Create Schemas
         create_schemas(conn, logger)
 
-        # Create Source Layer tables
+        # Create Bronze Tables
         create_source_tables(conn, logger)
 
-        # Load NDJSON files into Source Layer
-        load_source_layer(conn, logger)
+        # Create Silver Tables
+        create_silver_tables(conn, logger)
 
-        logger.info("ETL Pipeline completed successfully.")
+        # Create Silver Tables
+        create_audit_tables(conn, logger)
+
+        # Load Bronze Layer
+        load_source_layer(
+            conn=conn,
+            load_id=load_id,
+            logger=logger
+        )
+
+        logger.info("ETL Pipeline for raw data loading completed successfully.")
+
+        # Load Dimensions
+        load_dim_user(
+            conn=conn,
+            load_id=load_id,
+            logger=logger
+        )
+
+        logger.info("ETL Pipeline for dimensions completed successfully.")
 
     except Exception:
 

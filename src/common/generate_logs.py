@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from config.config import config
+from src.common.config import config
 
 
 def get_logger():
