@@ -2,7 +2,10 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from src.common.audit_utils import log_file_audit
+from src.common.audit_utils import (
+    log_file_audit,
+    is_file_processed,
+)
 from src.common.config import config
 
 
@@ -21,14 +24,34 @@ def load_source_layer(conn, load_id, logger):
     files = list(incoming_path.glob("*.ndjson"))
     files.extend(incoming_path.glob("*.txt"))
 
+    processed = False
+
     if not files:
         logger.warning("No source files found in incoming folder.")
-        return
+        return False
 
     for file in files:
 
         logger.info("=" * 80)
         logger.info(f"Processing File : {file.name}")
+
+        # Check whether the file has already been processed
+        if is_file_processed(conn, file.name):
+
+            logger.warning(
+                f"File '{file.name}' has already been processed. Skipping."
+            )
+
+            shutil.move(
+                str(file),
+                str(archive_path / file.name)
+            )
+
+            logger.info(
+                f"Moved '{file.name}' to archive folder."
+            )
+
+            continue
 
         start_time = datetime.now()
 
@@ -71,6 +94,8 @@ def load_source_layer(conn, load_id, logger):
             end_time = datetime.now()
 
             logger.info(f"Rows Loaded : {rows_loaded:,}")
+
+            processed = True
 
             log_file_audit(
                 conn=conn,
@@ -120,3 +145,5 @@ def load_source_layer(conn, load_id, logger):
             logger.info(f"Moved '{file.name}' to error folder.")
 
             raise
+
+    return processed

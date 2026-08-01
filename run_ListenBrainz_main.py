@@ -4,7 +4,7 @@ from src.database.create_db import (
     create_schemas,
     create_source_tables,
     create_silver_tables,
-    create_audit_tables
+    create_audit_tables,
 )
 
 from src.bronze.br_extract_lb_music import load_source_layer
@@ -28,7 +28,7 @@ def main():
     logger.info(f"Bronze Schema   : {config.bronze_schema}")
     logger.info(f"Silver Schema   : {config.silver_schema}")
     logger.info(f"Gold Schema     : {config.gold_schema}")
-    logger.info(f"Audit Schema     : {config.audit_schema}")
+    logger.info(f"Audit Schema    : {config.audit_schema}")
 
     logger.info(f"Incoming Folder : {config.incoming_folder}")
     logger.info(f"Archive Folder  : {config.archive_folder}")
@@ -55,23 +55,31 @@ def main():
         # Create Silver Tables
         create_silver_tables(conn, logger)
 
-        # Create Silver Tables
+        # Create Audit Tables
         create_audit_tables(conn, logger)
 
-        # Load Bronze Layer
-        load_source_layer(
+        # Load Source Layer
+        files_processed = load_source_layer(
             conn=conn,
             load_id=load_id,
-            logger=logger
+            logger=logger,
         )
+
+        # Stop ETL if no new files were processed
+        if not files_processed:
+
+            logger.info("=" * 80)
+            logger.info("No new files found for processing.")
+            logger.info("ETL Pipeline finished successfully.")
+            return
 
         logger.info("ETL Pipeline for raw data loading completed successfully.")
 
-        # Load Dimensions
+        # Load User Dimension
         load_dim_user(
             conn=conn,
             load_id=load_id,
-            logger=logger
+            logger=logger,
         )
 
         logger.info("ETL Pipeline for dimensions completed successfully.")
