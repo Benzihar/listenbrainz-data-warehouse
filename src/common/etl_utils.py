@@ -24,3 +24,21 @@ def execute_insert(conn, sql, params, logger, object_name, expected_rows):
     logger.info(f"{object_name}: Successfully inserted {expected_rows} record(s).")
 
     return expected_rows
+
+
+def execute_update(conn, sql, params, logger, object_name, expected_rows):
+    """
+    Executes an UPDATE statement and logs the outcome.
+    """
+
+    if expected_rows == 0:
+        logger.info(f"{object_name}: No records require updating.")
+        return 0
+
+    logger.info(f"{object_name}: Updating {expected_rows} record(s)...")
+
+    conn.execute(sql, params)
+
+    logger.info(f"{object_name}: Successfully updated {expected_rows} record(s).")
+
+    return expected_rows

@@ -60,6 +60,18 @@ class Config:
         return self.config["BRZ_TABLE"]["ARCHIVE_RAW"]
 
     @property
+    def dim_date_table(self):
+        return self.config["SIL_TABLE"]["DIM_DATE"]
+
+    @property
+    def dim_date_start(self):
+        return self.config["DATE_DIMENSION"]["START_DATE"]
+
+    @property
+    def dim_date_end(self):
+        return self.config["DATE_DIMENSION"]["END_DATE"]
+
+    @property
     def dim_user_table(self):
         return self.config["SIL_TABLE"]["DIM_USER"]
 

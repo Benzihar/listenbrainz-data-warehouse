@@ -5,7 +5,19 @@ from src.common.etl_utils import execute_insert
 def load_dim_user(conn, load_id, logger):
     """
     Load User Dimension from Bronze Layer.
-    Inserts only new users (idempotent).
+
+    Business Key:
+        USER_NAME
+
+    SCD Strategy:
+        Type 1
+
+    Notes:
+        - Inserts only new users.
+        - Existing users are not updated because the source currently
+          contains only the business key (USER_NAME).
+        - CREATED_AT is populated during insert.
+        - UPDATED_AT remains NULL until future attribute changes exist.
     """
 
     logger.info("=" * 50)
@@ -56,7 +68,7 @@ def load_dim_user(conn, load_id, logger):
         ?,
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP,
-        CURRENT_TIMESTAMP
+        NULL
 
     FROM
     (

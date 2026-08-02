@@ -99,6 +99,37 @@ def create_silver_tables(conn, logger):
 
     logger.info("Creating Silver Layer tables...")
 
+    # DIM_DATE
+    conn.execute(
+        f"""
+        CREATE TABLE IF NOT EXISTS {config.silver_schema}.{config.dim_date_table}
+        (
+            date_key INTEGER PRIMARY KEY,
+            full_date DATE NOT NULL,
+
+            day_of_month TINYINT,
+            day_of_week TINYINT,
+            day_name VARCHAR,
+
+            week_of_year TINYINT,
+
+            month_number TINYINT,
+            month_name VARCHAR,
+
+            quarter_number TINYINT,
+            year_number SMALLINT,
+
+            is_weekend BOOLEAN,
+
+            created_at TIMESTAMP,
+            updated_at TIMESTAMP,
+
+            load_id BIGINT,
+            load_timestamp TIMESTAMP
+        );
+        """
+    )
+
     # DIM_USER
     conn.execute("""
     CREATE SEQUENCE IF NOT EXISTS seq_dim_user;
@@ -119,15 +150,23 @@ def create_silver_tables(conn, logger):
     )
 
     # DIM_ARTIST
+    # DIM_ARTIST
+    conn.execute("""
+    CREATE SEQUENCE IF NOT EXISTS seq_dim_artist;
+    """)
+
     conn.execute(
         f"""
         CREATE TABLE IF NOT EXISTS {config.silver_schema}.{config.dim_artist_table}
         (
-            artist_key BIGINT PRIMARY KEY,
+            artist_key BIGINT PRIMARY KEY DEFAULT nextval('seq_dim_artist'),
+
             artist_msid VARCHAR,
             artist_name VARCHAR,
+
             created_at TIMESTAMP,
             updated_at TIMESTAMP,
+
             load_id BIGINT,
             load_timestamp TIMESTAMP
         );
@@ -135,11 +174,15 @@ def create_silver_tables(conn, logger):
     )
 
     # DIM_RELEASE
+    conn.execute("""
+    CREATE SEQUENCE IF NOT EXISTS seq_dim_release;
+    """)
+
     conn.execute(
         f"""
         CREATE TABLE IF NOT EXISTS {config.silver_schema}.{config.dim_release_table}
         (
-            release_key BIGINT PRIMARY KEY,
+            release_key BIGINT PRIMARY KEY DEFAULT nextval('seq_dim_release'),
             release_msid VARCHAR,
             release_name VARCHAR,
             created_at TIMESTAMP,
@@ -151,11 +194,15 @@ def create_silver_tables(conn, logger):
     )
 
     # DIM_RECORDING
+    conn.execute("""
+    CREATE SEQUENCE IF NOT EXISTS seq_dim_recording;
+    """)
+
     conn.execute(
-        f"""
-        CREATE TABLE IF NOT EXISTS {config.silver_schema}.{config.dim_recording_table}
+    f"""
+    CREATE TABLE IF NOT EXISTS {config.silver_schema}.{config.dim_recording_table}
         (
-            recording_key BIGINT PRIMARY KEY,
+            recording_key BIGINT PRIMARY KEY DEFAULT nextval('seq_dim_recording'),
             recording_msid VARCHAR,
             track_name VARCHAR,
             artist_key BIGINT,

@@ -1,4 +1,8 @@
 from src.common.config import config
+from src.silver.load_dim_date import load_dim_date
+from src.silver.load_dim_artist import load_dim_artist
+from src.silver.load_dim_release import load_dim_release
+from src.silver.load_dim_recording import load_dim_recording
 from src.database.create_db import (
     get_connection,
     create_schemas,
@@ -75,11 +79,39 @@ def main():
 
         logger.info("ETL Pipeline for raw data loading completed successfully.")
 
+        # Load Date Dimension
+        load_dim_date(
+            conn=conn,
+            load_id=load_id,
+            logger=logger
+        )
+
         # Load User Dimension
         load_dim_user(
             conn=conn,
             load_id=load_id,
             logger=logger,
+        )
+
+        # Load Artist Dimension
+        load_dim_artist(
+            conn=conn,
+            load_id=load_id,
+            logger=logger
+        )
+
+        # Load Release Dimension
+        load_dim_release(
+            conn=conn,
+            load_id=load_id,
+            logger=logger
+        )
+
+        # Load Recording Dimension
+        load_dim_recording(
+            conn=conn,
+            load_id=load_id,
+            logger=logger
         )
 
         logger.info("ETL Pipeline for dimensions completed successfully.")
