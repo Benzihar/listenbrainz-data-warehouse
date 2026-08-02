@@ -144,7 +144,8 @@ def load_dim_date(conn, load_id, logger):
         params=[load_id],
         logger=logger,
         object_name="DIM_DATE",
-        expected_rows=new_rows
+        expected_rows=new_rows,
+        load_id=load_id
     )
 
     logger.info("Date Dimension loaded successfully.")

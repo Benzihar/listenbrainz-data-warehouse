@@ -54,9 +54,9 @@ def load_dim_recording(conn, load_id, logger):
                     )
                 ) AS track_name,
 
-                a.artist_key,
+                COALESCE(a.artist_key, 0) AS artist_key,
 
-                r.release_key,
+                COALESCE(r.release_key, 0) AS release_key,
 
                 ROW_NUMBER() OVER
                 (
@@ -170,7 +170,7 @@ def load_dim_recording(conn, load_id, logger):
 
     update_rows = conn.execute(update_count_sql).fetchone()[0]
 
-        # ============================================================
+    # ============================================================
     # UPDATE EXISTING RECORDINGS (SCD TYPE 1)
     # ============================================================
 
@@ -214,7 +214,8 @@ def load_dim_recording(conn, load_id, logger):
         params=[load_id],
         logger=logger,
         object_name="DIM_RECORDING",
-        expected_rows=update_rows
+        expected_rows=update_rows,
+        load_id=load_id
     )
 
         # ============================================================
@@ -237,7 +238,7 @@ def load_dim_recording(conn, load_id, logger):
 
     insert_rows = conn.execute(insert_count_sql).fetchone()[0]
 
-        # ============================================================
+    # ============================================================
     # INSERT NEW RECORDINGS
     # ============================================================
 
@@ -282,7 +283,8 @@ def load_dim_recording(conn, load_id, logger):
         params=[load_id],
         logger=logger,
         object_name="DIM_RECORDING",
-        expected_rows=insert_rows
+        expected_rows=insert_rows,
+        load_id=load_id
     )
 
     logger.info("Recording Dimension loaded successfully.")

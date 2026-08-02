@@ -104,7 +104,7 @@ def create_silver_tables(conn, logger):
         f"""
         CREATE TABLE IF NOT EXISTS {config.silver_schema}.{config.dim_date_table}
         (
-            date_key INTEGER PRIMARY KEY,
+            date_key BIGINT PRIMARY KEY,
             full_date DATE NOT NULL,
 
             day_of_month TINYINT,
@@ -150,7 +150,6 @@ def create_silver_tables(conn, logger):
     )
 
     # DIM_ARTIST
-    # DIM_ARTIST
     conn.execute("""
     CREATE SEQUENCE IF NOT EXISTS seq_dim_artist;
     """)
@@ -173,6 +172,34 @@ def create_silver_tables(conn, logger):
         """
     )
 
+    conn.execute(
+            f"""
+            INSERT INTO {config.silver_schema}.{config.dim_artist_table}
+            (
+            artist_key,
+            artist_msid,
+            artist_name,
+            created_at,
+            updated_at,
+            load_id,
+            load_timestamp
+            )
+            SELECT
+                0,
+                'UNKNOWN',
+                'Unknown Artist',
+                CURRENT_TIMESTAMP,
+                NULL,
+                0,
+                CURRENT_TIMESTAMP
+            WHERE NOT EXISTS
+            (
+                SELECT 1
+                FROM {config.silver_schema}.{config.dim_artist_table}
+                WHERE artist_key = 0
+            );              
+    """)
+
     # DIM_RELEASE
     conn.execute("""
     CREATE SEQUENCE IF NOT EXISTS seq_dim_release;
@@ -192,6 +219,34 @@ def create_silver_tables(conn, logger):
         );
         """
     )
+
+    conn.execute(
+        f"""
+        INSERT INTO {config.silver_schema}.{config.dim_release_table}
+        (
+            release_key,
+            release_msid,
+            release_name,
+            created_at,
+            updated_at,
+            load_id,
+            load_timestamp
+        )
+        SELECT
+            0,
+            'UNKNOWN',
+            'Unknown Release',
+            CURRENT_TIMESTAMP,
+            NULL,
+            0,
+            CURRENT_TIMESTAMP
+        WHERE NOT EXISTS
+        (
+            SELECT 1
+            FROM {config.silver_schema}.{config.dim_release_table}
+            WHERE release_key = 0
+        );
+    """)
 
     # DIM_RECORDING
     conn.execute("""
@@ -218,22 +273,70 @@ def create_silver_tables(conn, logger):
         );
         """
     )
+    conn.execute(
+        f"""
+        INSERT INTO {config.silver_schema}.{config.dim_recording_table}
+        (
+            recording_key,
+            recording_msid,
+            track_name,
+            artist_key,
+            release_key,
+            created_at,
+            updated_at,
+            load_id,
+            load_timestamp
+        )
+        SELECT
+            0,
+            'UNKNOWN',
+            'Unknown Recording',
+            0,
+            0,
+            CURRENT_TIMESTAMP,
+            NULL,
+            0,
+            CURRENT_TIMESTAMP
+        WHERE NOT EXISTS
+        (
+            SELECT 1
+            FROM {config.silver_schema}.{config.dim_recording_table}
+            WHERE recording_key = 0
+        );
+    """)
 
     # FACT_LISTEN
+
+    conn.execute("""
+        CREATE SEQUENCE IF NOT EXISTS seq_fact_listen;
+        """)
+
+    
     conn.execute(
         f"""
         CREATE TABLE IF NOT EXISTS {config.silver_schema}.{config.fact_listen_table}
         (
-            listen_key BIGINT PRIMARY KEY,
-            user_key BIGINT,
-            recording_key BIGINT,
-            listened_at TIMESTAMP,
-            load_id BIGINT,
-            load_timestamp TIMESTAMP,
-            FOREIGN KEY (user_key)
-                REFERENCES {config.silver_schema}.{config.dim_user_table}(user_key),
-            FOREIGN KEY (recording_key)
-                REFERENCES {config.silver_schema}.{config.dim_recording_table}(recording_key)
+          fact_listen_key BIGINT PRIMARY KEY DEFAULT nextval('seq_fact_listen'),
+
+        date_key BIGINT NOT NULL,
+        user_key BIGINT NOT NULL,
+        recording_key BIGINT NOT NULL,
+
+        listened_at TIMESTAMP NOT NULL,
+
+        listen_count INTEGER NOT NULL DEFAULT 1,
+
+        load_id BIGINT NOT NULL,
+        load_timestamp TIMESTAMP NOT NULL,
+
+        FOREIGN KEY (date_key)
+            REFERENCES {config.silver_schema}.{config.dim_date_table}(date_key),
+
+        FOREIGN KEY (user_key)
+            REFERENCES {config.silver_schema}.{config.dim_user_table}(user_key),
+
+        FOREIGN KEY (recording_key)
+            REFERENCES {config.silver_schema}.{config.dim_recording_table}(recording_key)
         );
         """
     )
@@ -293,5 +396,39 @@ def create_audit_tables(conn, logger):
         );
         """
     )
+
+    # DQ RESULTS
+
+    conn.execute("""
+    CREATE SEQUENCE IF NOT EXISTS seq_dq_results;
+    """)
+    
+    conn.execute(
+    f"""
+    CREATE TABLE IF NOT EXISTS {config.audit_schema}.{config.dq_results_table}
+    (
+        dq_id BIGINT PRIMARY KEY
+            DEFAULT nextval('seq_dq_results'),
+
+        load_id BIGINT NOT NULL,
+
+        object_name VARCHAR NOT NULL,
+
+        rule_name VARCHAR NOT NULL,
+
+        failed_rows BIGINT NOT NULL,
+
+        status VARCHAR NOT NULL,
+
+        start_time TIMESTAMP,
+
+        end_time TIMESTAMP,
+
+        processing_time_seconds DOUBLE,
+
+        error_message VARCHAR
+    );
+    """
+)
 
     logger.info("Audit Layer tables created successfully.")

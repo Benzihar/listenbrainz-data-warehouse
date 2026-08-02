@@ -93,7 +93,8 @@ def load_dim_user(conn, load_id, logger):
         params=[load_id],
         logger=logger,
         object_name="DIM_USER",
-        expected_rows=new_rows
+        expected_rows=new_rows,
+        load_id=load_id
     )
 
     logger.info("User Dimension loaded successfully.")

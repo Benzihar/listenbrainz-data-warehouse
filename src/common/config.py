@@ -98,5 +98,9 @@ class Config:
     @property
     def etl_object_audit_table(self):
         return self.config["AUD_TABLE"]["ETL_OBJECT_AUDIT"]
-    
+
+    @property
+    def dq_results_table(self):
+        return self.config["AUD_TABLE"]["DQ_RESULTS"]
+
 config = Config()

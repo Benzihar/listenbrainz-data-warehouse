@@ -152,7 +152,8 @@ def load_dim_artist(conn, load_id, logger):
     params=[load_id],
     logger=logger,
     object_name="DIM_ARTIST",
-    expected_rows=update_rows
+    expected_rows=update_rows,
+    load_id=load_id
     )
 
     # ============================================================
@@ -216,7 +217,8 @@ def load_dim_artist(conn, load_id, logger):
     params=[load_id],
     logger=logger,
     object_name="DIM_ARTIST",
-    expected_rows=insert_rows
+    expected_rows=insert_rows,
+    load_id=load_id
     )
 
     logger.info("Artist Dimension loaded successfully.")
