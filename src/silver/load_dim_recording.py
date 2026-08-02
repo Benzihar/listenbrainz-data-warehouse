@@ -24,74 +24,126 @@ def load_dim_recording(conn, load_id, logger):
     release_table = f"{config.silver_schema}.{config.dim_release_table}"
 
     # ============================================================
-    # COUNT UPDATED RECORDINGS
+    # COMMON CTE FOR SOURCE RELEASE DATA
     # ============================================================
 
-    update_count_sql = f"""
+    src_recording_cte = f"""
     WITH src_recording AS
     (
-        SELECT DISTINCT
+        SELECT
+            recording_msid,
+            track_name,
+            artist_key,
+            release_key
 
-            LOWER(
+        FROM
+        (
+            SELECT
+
                 TRIM(
                     json_extract_string(
                         b.raw_json,
                         '$.track_metadata.additional_info.recording_msid'
                     )
+                ) AS recording_msid,
+
+                TRIM(
+                    json_extract_string(
+                        b.raw_json,
+                        '$.track_metadata.track_name'
+                    )
+                ) AS track_name,
+
+                a.artist_key,
+
+                r.release_key,
+
+                ROW_NUMBER() OVER
+                (
+                    PARTITION BY
+
+                        TRIM(
+                            json_extract_string(
+                                b.raw_json,
+                                '$.track_metadata.additional_info.recording_msid'
+                            )
+                        )
+
+                    ORDER BY
+                        CAST(json_extract_string(b.raw_json,'$.listened_at') AS BIGINT) DESC,
+                        b.record_number DESC
+
+                ) AS rn
+
+            FROM {bronze_table} b
+
+            LEFT JOIN {artist_table} a
+
+                ON
+                TRIM(
+                    json_extract_string(
+                        b.raw_json,
+                        '$.track_metadata.additional_info.artist_msid'
+                    )
                 )
-            ) AS recording_msid,
+                =
+                a.artist_msid
 
-            TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.track_name'
+            LEFT JOIN {release_table} r
+
+                ON
+                TRIM(
+                    json_extract_string(
+                        b.raw_json,
+                        '$.track_metadata.additional_info.release_msid'
+                    )
                 )
-            ) AS track_name,
+                =
+                r.release_msid
 
-            a.artist_key,
+            WHERE
 
-            r.release_key
-
-        FROM {bronze_table} b
-
-        LEFT JOIN {artist_table} a
-
-        ON LOWER(
-            TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.additional_info.artist_msid'
-                )
-            )
-        )
-        =
-        LOWER(TRIM(a.artist_msid))
-
-        LEFT JOIN {release_table} r
-
-        ON LOWER(
-            TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.additional_info.release_msid'
-                )
-            )
-        )
-        =
-        LOWER(TRIM(r.release_msid))
-
-        WHERE json_extract_string(
-                b.raw_json,
-                '$.track_metadata.additional_info.recording_msid'
-              ) IS NOT NULL
-
-          AND TRIM(
                 json_extract_string(
                     b.raw_json,
                     '$.track_metadata.additional_info.recording_msid'
-                )
-              ) <> ''
+                ) IS NOT NULL
+
+            AND
+
+                TRIM(
+                    json_extract_string(
+                        b.raw_json,
+                        '$.track_metadata.additional_info.recording_msid'
+                    )
+                ) <> ''
+
+            AND
+
+                json_extract_string(
+                    b.raw_json,
+                    '$.track_metadata.track_name'
+                ) IS NOT NULL
+
+            AND
+
+                TRIM(
+                    json_extract_string(
+                        b.raw_json,
+                        '$.track_metadata.track_name'
+                    )
+                ) <> ''
+        )
+
+        WHERE rn = 1
     )
+    """
+
+    # ============================================================
+    # COUNT UPDATED RECORDINGS
+    # ============================================================
+
+    update_count_sql = f"""
+    {src_recording_cte}
 
     SELECT COUNT(*)
 
@@ -99,22 +151,21 @@ def load_dim_recording(conn, load_id, logger):
 
     INNER JOIN {dim_table} d
 
-        ON src.recording_msid =
-           LOWER(TRIM(d.recording_msid))
+    ON d.recording_msid = src.recording_msid
 
     WHERE
 
-        LOWER(TRIM(src.track_name))
-        <>
         LOWER(TRIM(d.track_name))
+        <>
+        LOWER(TRIM(src.track_name))
 
         OR
 
-        src.artist_key <> d.artist_key
+        d.artist_key <> src.artist_key
 
         OR
 
-        src.release_key <> d.release_key;
+        d.release_key <> src.release_key;
     """
 
     update_rows = conn.execute(update_count_sql).fetchone()[0]
@@ -124,111 +175,39 @@ def load_dim_recording(conn, load_id, logger):
     # ============================================================
 
     update_sql = f"""
-    WITH src_recording AS
-    (
-        SELECT DISTINCT
-
-            LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.recording_msid'
-                    )
-                )
-            ) AS recording_msid,
-
-            TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.track_name'
-                )
-            ) AS track_name,
-
-            a.artist_key,
-
-            r.release_key
-
-        FROM {bronze_table} b
-
-        LEFT JOIN {artist_table} a
-
-            ON LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.artist_msid'
-                    )
-                )
-            )
-            =
-            LOWER(TRIM(a.artist_msid))
-
-        LEFT JOIN {release_table} r
-
-            ON LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.release_msid'
-                    )
-                )
-            )
-            =
-            LOWER(TRIM(r.release_msid))
-
-        WHERE json_extract_string(
-                b.raw_json,
-                '$.track_metadata.additional_info.recording_msid'
-              ) IS NOT NULL
-
-          AND TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.additional_info.recording_msid'
-                )
-              ) <> ''
-    )
+    {src_recording_cte}
 
     UPDATE {dim_table} d
 
     SET
-
         track_name = src.track_name,
-
         artist_key = src.artist_key,
-
         release_key = src.release_key,
-
         updated_at = CURRENT_TIMESTAMP,
-
         load_id = ?,
-
         load_timestamp = CURRENT_TIMESTAMP
 
     FROM src_recording src
 
     WHERE
 
-        LOWER(TRIM(d.recording_msid))
-        =
-        src.recording_msid
+        d.recording_msid = src.recording_msid
 
-        AND
-        (
-            LOWER(TRIM(d.track_name))
-            <>
-            LOWER(TRIM(src.track_name))
+    AND
+    (
+        LOWER(TRIM(d.track_name))
+        <>
+        LOWER(TRIM(src.track_name))
 
-            OR
+        OR
 
-            d.artist_key <> src.artist_key
+        d.artist_key <> src.artist_key
 
-            OR
+        OR
 
-            d.release_key <> src.release_key
-        );
+        d.release_key <> src.release_key
+    );
     """
-
     execute_update(
         conn=conn,
         sql=update_sql,
@@ -243,82 +222,7 @@ def load_dim_recording(conn, load_id, logger):
     # ============================================================
 
     insert_count_sql = f"""
-    WITH src_recording AS
-    (
-        SELECT DISTINCT
-
-            LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.recording_msid'
-                    )
-                )
-            ) AS recording_msid,
-
-            TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.track_name'
-                )
-            ) AS track_name,
-
-            a.artist_key,
-
-            r.release_key
-
-        FROM {bronze_table} b
-
-        LEFT JOIN {artist_table} a
-
-            ON LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.artist_msid'
-                    )
-                )
-            )
-            =
-            LOWER(TRIM(a.artist_msid))
-
-        LEFT JOIN {release_table} r
-
-            ON LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.release_msid'
-                    )
-                )
-            )
-            =
-            LOWER(TRIM(r.release_msid))
-
-        WHERE json_extract_string(
-                b.raw_json,
-                '$.track_metadata.additional_info.recording_msid'
-              ) IS NOT NULL
-
-          AND TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.additional_info.recording_msid'
-                )
-              ) <> ''
-
-          AND json_extract_string(
-                b.raw_json,
-                '$.track_metadata.track_name'
-              ) IS NOT NULL
-
-          AND TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.track_name'
-                )
-              ) <> ''
-    )
+    {src_recording_cte}
 
     SELECT COUNT(*)
 
@@ -326,8 +230,7 @@ def load_dim_recording(conn, load_id, logger):
 
     LEFT JOIN {dim_table} d
 
-        ON src.recording_msid =
-           LOWER(TRIM(d.recording_msid))
+    ON d.recording_msid = src.recording_msid
 
     WHERE d.recording_msid IS NULL;
     """
@@ -339,82 +242,7 @@ def load_dim_recording(conn, load_id, logger):
     # ============================================================
 
     insert_sql = f"""
-    WITH src_recording AS
-    (
-        SELECT DISTINCT
-
-            LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.recording_msid'
-                    )
-                )
-            ) AS recording_msid,
-
-            TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.track_name'
-                )
-            ) AS track_name,
-
-            a.artist_key,
-
-            r.release_key
-
-        FROM {bronze_table} b
-
-        LEFT JOIN {artist_table} a
-
-            ON LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.artist_msid'
-                    )
-                )
-            )
-            =
-            LOWER(TRIM(a.artist_msid))
-
-        LEFT JOIN {release_table} r
-
-            ON LOWER(
-                TRIM(
-                    json_extract_string(
-                        b.raw_json,
-                        '$.track_metadata.additional_info.release_msid'
-                    )
-                )
-            )
-            =
-            LOWER(TRIM(r.release_msid))
-
-        WHERE json_extract_string(
-                b.raw_json,
-                '$.track_metadata.additional_info.recording_msid'
-              ) IS NOT NULL
-
-          AND TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.additional_info.recording_msid'
-                )
-              ) <> ''
-
-          AND json_extract_string(
-                b.raw_json,
-                '$.track_metadata.track_name'
-              ) IS NOT NULL
-
-          AND TRIM(
-                json_extract_string(
-                    b.raw_json,
-                    '$.track_metadata.track_name'
-                )
-              ) <> ''
-    )
+    {src_recording_cte}
 
     INSERT INTO {dim_table}
     (
@@ -443,8 +271,7 @@ def load_dim_recording(conn, load_id, logger):
 
     LEFT JOIN {dim_table} d
 
-        ON src.recording_msid =
-           LOWER(TRIM(d.recording_msid))
+    ON d.recording_msid = src.recording_msid
 
     WHERE d.recording_msid IS NULL;
     """

@@ -60,6 +60,7 @@ def load_dim_release(conn, load_id, logger):
                         )
 
                     ORDER BY
+                        CAST(json_extract_string(raw_json,'$.listened_at') AS BIGINT) DESC,
                         record_number DESC
 
                 ) AS rn
