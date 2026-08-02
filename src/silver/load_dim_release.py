@@ -21,36 +21,88 @@ def load_dim_release(conn, load_id, logger):
     dim_table = f"{config.silver_schema}.{config.dim_release_table}"
 
     # ============================================================
+    # COMMON CTE FOR SOURCE RELEASE DATA
+    # ============================================================
+
+    src_release_cte = f"""
+    WITH src_release AS
+    (
+        SELECT
+            release_msid,
+            release_name
+
+        FROM
+        (
+            SELECT
+
+                TRIM(
+                    json_extract_string(
+                        raw_json,
+                        '$.track_metadata.additional_info.release_msid'
+                    )
+                ) AS release_msid,
+
+                TRIM(
+                    json_extract_string(
+                        raw_json,
+                        '$.track_metadata.release_name'
+                    )
+                ) AS release_name,
+
+                ROW_NUMBER() OVER
+                (
+                    PARTITION BY
+                        TRIM(
+                            json_extract_string(
+                                raw_json,
+                                '$.track_metadata.additional_info.release_msid'
+                            )
+                        )
+
+                    ORDER BY
+                        record_number DESC
+
+                ) AS rn
+
+            FROM {bronze_table}
+
+            WHERE
+
+                json_extract_string(
+                    raw_json,
+                    '$.track_metadata.additional_info.release_msid'
+                ) IS NOT NULL
+
+            AND TRIM(
+                    json_extract_string(
+                        raw_json,
+                        '$.track_metadata.additional_info.release_msid'
+                    )
+                ) <> ''
+
+            AND json_extract_string(
+                    raw_json,
+                    '$.track_metadata.release_name'
+                ) IS NOT NULL
+
+            AND TRIM(
+                    json_extract_string(
+                        raw_json,
+                        '$.track_metadata.release_name'
+                    )
+                ) <> ''
+        )
+
+        WHERE rn = 1
+    )
+    """
+
+    # ============================================================
     # COUNT CHANGED RELEASES
     # ============================================================
 
     update_count_sql = f"""
-    WITH src_release AS
-    (
-        SELECT DISTINCT
-
-            LOWER(TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            ))) AS release_msid,
-
-            TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.release_name'
-            )) AS release_name
-
-        FROM {bronze_table}
-
-        WHERE json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            ) IS NOT NULL
-
-        AND TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            )) <> ''
-    )
+    {src_release_cte}
 
     SELECT COUNT(*)
 
@@ -58,7 +110,7 @@ def load_dim_release(conn, load_id, logger):
 
     INNER JOIN {dim_table} d
 
-    ON src.release_msid = LOWER(TRIM(d.release_msid))
+    ON d.release_msid = src.release_msid
 
     WHERE
 
@@ -74,32 +126,7 @@ def load_dim_release(conn, load_id, logger):
     # ============================================================
 
     update_sql = f"""
-    WITH src_release AS
-    (
-        SELECT DISTINCT
-
-            LOWER(TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            ))) AS release_msid,
-
-            TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.release_name'
-            )) AS release_name
-
-        FROM {bronze_table}
-
-        WHERE json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            ) IS NOT NULL
-
-        AND TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            )) <> ''
-    )
+    {src_release_cte}
 
     UPDATE {dim_table} d
 
@@ -112,16 +139,13 @@ def load_dim_release(conn, load_id, logger):
     FROM src_release src
 
     WHERE
-
-    LOWER(TRIM(d.release_msid))
-    =
-    src.release_msid
+        d.release_msid = src.release_msid
 
     AND
 
-    LOWER(TRIM(d.release_name))
-    <>
-    LOWER(TRIM(src.release_name));
+        LOWER(TRIM(d.release_name))
+        <>
+        LOWER(TRIM(src.release_name));
     """
 
     execute_update(
@@ -138,42 +162,7 @@ def load_dim_release(conn, load_id, logger):
     # ============================================================
 
     insert_count_sql = f"""
-    WITH src_release AS
-    (
-        SELECT DISTINCT
-
-            LOWER(TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            ))) AS release_msid,
-
-            TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.release_name'
-            )) AS release_name
-
-        FROM {bronze_table}
-
-        WHERE json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            ) IS NOT NULL
-
-        AND TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            )) <> ''
-
-        AND json_extract_string(
-                raw_json,
-                '$.track_metadata.release_name'
-            ) IS NOT NULL
-
-        AND TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.release_name'
-            )) <> ''
-    )
+    {src_release_cte}
 
     SELECT COUNT(*)
 
@@ -181,8 +170,7 @@ def load_dim_release(conn, load_id, logger):
 
     LEFT JOIN {dim_table} d
 
-    ON src.release_msid =
-    LOWER(TRIM(d.release_msid))
+    ON d.release_msid = src.release_msid
 
     WHERE d.release_msid IS NULL;
     """
@@ -194,42 +182,7 @@ def load_dim_release(conn, load_id, logger):
     # ============================================================
 
     insert_sql = f"""
-    WITH src_release AS
-    (
-        SELECT DISTINCT
-
-            LOWER(TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            ))) AS release_msid,
-
-            TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.release_name'
-            )) AS release_name
-
-        FROM {bronze_table}
-
-        WHERE json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            ) IS NOT NULL
-
-        AND TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.additional_info.release_msid'
-            )) <> ''
-
-        AND json_extract_string(
-                raw_json,
-                '$.track_metadata.release_name'
-            ) IS NOT NULL
-
-        AND TRIM(json_extract_string(
-                raw_json,
-                '$.track_metadata.release_name'
-            )) <> ''
-    )
+    {src_release_cte}
 
     INSERT INTO {dim_table}
     (
@@ -254,8 +207,7 @@ def load_dim_release(conn, load_id, logger):
 
     LEFT JOIN {dim_table} d
 
-    ON src.release_msid =
-    LOWER(TRIM(d.release_msid))
+    ON d.release_msid = src.release_msid
 
     WHERE d.release_msid IS NULL;
     """
