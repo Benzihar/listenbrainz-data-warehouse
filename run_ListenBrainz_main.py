@@ -18,6 +18,7 @@ from src.silver.load_dim_user import load_dim_user
 from src.common.generate_logs import get_logger
 from src.common.etl_utils import generate_load_id
 from src.dq.run_dq_checks import run_dq_checks
+from src.gold.load_gold_views import create_gold_views
 
 
 def main():
@@ -140,6 +141,15 @@ def main():
         )
 
         logger.info("Data Quality checks completed successfully.")
+
+        # Create Gold Layer Views
+
+        create_gold_views(
+            conn=conn,
+            logger=logger
+        )
+
+        logger.info("Gold Layer created successfully.")
         
 
     except Exception:
