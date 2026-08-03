@@ -17,7 +17,7 @@
 13. Business Assumptions
 14. Design Decisions
 15. Future Enhancements
-15. How to Run
+16. How to Run
 17. Conclusion
 
 ## Project Overview
@@ -27,9 +27,10 @@ This project implements an end-to-end ETL solution for the ListenBrainz dataset 
 The implementation consists of:
 
 - Bronze Layer for raw data ingestion
-- Silver Layer implementing a dimensional star schema
+- Silver Layer implementing a dimensional Snowflake Schema
 - Gold Layer providing a business-friendly semantic view
 - Data Quality and Audit Framework
+- Incremental and idempotent file processing using ETL_FILE_AUDIT.
 - Parameterized analytical SQL queries to answer the business questions
 
 The solution has been designed with production-oriented principles including modularity, maintainability, auditability, and clear separation of responsibilities between each processing layer.
@@ -268,6 +269,8 @@ The normalized Snowflake Schema reduces duplication of artist and release inform
 
 **Figure 2:** Snowflake Schema implemented for the ListenBrainz analytical data warehouse.
 
+The Gold semantic layer abstracts this normalized model and serves as the primary reporting interface for all analytical queries.
+
 ## Data Quality Framework
 
 To ensure the integrity and reliability of the analytical data warehouse, an automated Data Quality (DQ) framework is executed after all dimensions and the fact table have been successfully loaded.
@@ -331,7 +334,7 @@ The audit framework consists of two independent components:
 - **ETL_FILE_AUDIT** – Tracks file-level processing.
 - **ETL_OBJECT_AUDIT** – Tracks execution statistics for every ETL object.
 
-Together, these components provide end-to-end traceability throughout the ETL lifecycle.
+Together, ETL_FILE_AUDIT and ETL_OBJECT_AUDIT provide complete operational observability across file processing and object-level execution.
 
 ### ETL_FILE_AUDIT
 
@@ -518,7 +521,7 @@ ListenBrainz supports listening history collected from multiple music services a
 
 However, the supplied sample dataset contains listening events originating only from **Spotify**.
 
-The ETL solution has been designed in a source-independent manner and can be extended to support additional source platforms if they follow the same input schema.
+The ETL solution has been designed in a platform-independent, manner and can be extended to support additional source platforms if they follow the same input schema.
 
 ### User Information
 
@@ -769,7 +772,7 @@ The solution has been developed using **Python** and **DuckDB**, making it platf
 Ensure the following software is installed:
 
 - Python 3.10 or later
-- DuckDB
+- DuckDB Python package (installed automatically through requirements.txt)
 - Git (optional, for cloning the repository)
 - DBeaver (optional, for database exploration and executing analytical queries)
 
@@ -917,3 +920,11 @@ After successful execution, the following artifacts will be available:
 - The ETL pipeline is **idempotent** and safely skips files that have already been successfully processed.
 - The Gold semantic view (`VW_LISTEN_ANALYTICS`) is the recommended source for all analytical reporting.
 - All analytical SQL queries are parameterized, allowing the same SQL scripts to be reused for different reporting periods without modifying the code.
+
+## Conclusion
+
+This project demonstrates the implementation of a production-oriented ETL solution for the ListenBrainz dataset using a Medallion Architecture and a Snowflake Schema.
+
+The solution incorporates modular ETL processing, automated auditing, comprehensive data quality validation, and a reusable Gold semantic layer to support analytical reporting.
+
+By combining scalable architecture, operational monitoring, parameterized analytical SQL, and clear technical documentation, the implementation provides a maintainable and extensible foundation that can be adapted to larger datasets and evolving business requirements.
