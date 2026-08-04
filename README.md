@@ -35,6 +35,18 @@ The implementation consists of:
 
 The solution has been designed with production-oriented principles including modularity, maintainability, auditability, and clear separation of responsibilities between each processing layer.
 
+## Key Features
+
+• Medallion Architecture
+• Snowflake Schema
+• Incremental ETL
+• Idempotent File Processing
+• Data Quality Framework
+• ETL Audit Framework
+• Gold Semantic Layer
+• Parameterized SQL
+• Production-Oriented Design
+
 ## Assignment Objectives
 
 This assignment focuses on designing a scalable data engineering solution that demonstrates modern ETL and data warehousing practices. The objective is not only to load data into a database, but also to design a maintainable architecture that supports data quality, auditing, historical tracking, and business analytics.
