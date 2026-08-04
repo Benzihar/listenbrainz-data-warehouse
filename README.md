@@ -825,8 +825,22 @@ source .venv/bin/activate
 
 Install all required Python packages:
 
+**Windows**
+
 ```bash
-pip install -r requirements.txt
+py -m pip install -r requirements.txt
+```
+
+or
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+**macOS / Linux**
+
+```bash
+python3 -m pip install -r requirements.txt
 ```
 
 ---
