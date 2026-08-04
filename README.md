@@ -65,7 +65,7 @@ The solution aims to:
 
 ![Solution Architecture](docs/Solution_Architecture.png)
 
-**Figure 1:** Overall Architectural Digram for ListenBrainz warehouse
+**Figure 1:** Overall Architectural Diagram for ListenBrainz warehouse
 
 ## Technology Stack
 
