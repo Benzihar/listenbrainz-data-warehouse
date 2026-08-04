@@ -1,0 +1,72 @@
+2026-08-02 13:24:13 | INFO     | ============================================================
+2026-08-02 13:24:13 | INFO     | ListenBrainz ETL Started
+2026-08-02 13:24:13 | INFO     | ============================================================
+2026-08-02 13:24:13 | INFO     | ================================================================================
+2026-08-02 13:24:13 | INFO     | ListenBrainz ETL Pipeline Started
+2026-08-02 13:24:13 | INFO     | ================================================================================
+2026-08-02 13:24:13 | INFO     | Configuration loaded successfully.
+2026-08-02 13:24:13 | INFO     | Database Path   : db/ListenBrainz.db
+2026-08-02 13:24:13 | INFO     | Bronze Schema   : BRZ_100_SL
+2026-08-02 13:24:13 | INFO     | Silver Schema   : SIL_200_CL
+2026-08-02 13:24:13 | INFO     | Gold Schema     : GLD_300_PL
+2026-08-02 13:24:13 | INFO     | Audit Schema    : AUD_900_AUD
+2026-08-02 13:24:13 | INFO     | Incoming Folder : files/incoming
+2026-08-02 13:24:13 | INFO     | Archive Folder  : files/archive
+2026-08-02 13:24:13 | INFO     | Error Folder    : files/error
+2026-08-02 13:24:13 | INFO     | Connecting to DuckDB database : db\ListenBrainz.db
+2026-08-02 13:24:13 | INFO     | Database connection established successfully.
+2026-08-02 13:24:13 | INFO     | ETL Load ID : 20260802132413
+2026-08-02 13:24:13 | INFO     | Creating database schemas...
+2026-08-02 13:24:13 | INFO     | Schemas created successfully.
+2026-08-02 13:24:13 | INFO     | Creating Source Layer tables...
+2026-08-02 13:24:13 | INFO     | Source Layer tables created successfully.
+2026-08-02 13:24:13 | INFO     | Creating Silver Layer tables...
+2026-08-02 13:24:13 | INFO     | Silver Layer tables created successfully.
+2026-08-02 13:24:13 | INFO     | Creating Audit tables...
+2026-08-02 13:24:13 | INFO     | Audit Layer tables created successfully.
+2026-08-02 13:24:13 | INFO     | ================================================================================
+2026-08-02 13:24:13 | INFO     | Processing File : dataset.txt
+2026-08-02 13:24:13 | INFO     | Load ID : 20260802132413
+2026-08-02 13:24:13 | INFO     | Loading 'dataset.txt' into BRZ_100_SL.CSV_LISTENBRAINZ_RAW
+2026-08-02 13:24:17 | INFO     | Rows Loaded : 333,034
+2026-08-02 13:24:17 | INFO     | Moved 'dataset.txt' to archive folder.
+2026-08-02 13:24:17 | INFO     | Source Layer load completed successfully.
+2026-08-02 13:24:17 | INFO     | ETL Pipeline for raw data loading completed successfully.
+2026-08-02 13:24:17 | INFO     | ==================================================
+2026-08-02 13:24:17 | INFO     | Loading Date Dimension
+2026-08-02 13:24:17 | INFO     | ==================================================
+2026-08-02 13:24:17 | INFO     | DIM_DATE: Inserting 14976 record(s)...
+2026-08-02 13:24:17 | INFO     | DIM_DATE: Successfully inserted 14976 record(s).
+2026-08-02 13:24:17 | INFO     | Date Dimension loaded successfully.
+2026-08-02 13:24:17 | INFO     | ==================================================
+2026-08-02 13:24:17 | INFO     | Loading User Dimension
+2026-08-02 13:24:17 | INFO     | ==================================================
+2026-08-02 13:24:17 | INFO     | DIM_USER: Inserting 202 record(s)...
+2026-08-02 13:24:18 | INFO     | DIM_USER: Successfully inserted 202 record(s).
+2026-08-02 13:24:18 | INFO     | User Dimension loaded successfully.
+2026-08-02 13:24:18 | INFO     | ==================================================
+2026-08-02 13:24:18 | INFO     | Loading Artist Dimension
+2026-08-02 13:24:18 | INFO     | ==================================================
+2026-08-02 13:24:19 | INFO     | DIM_ARTIST: No records require updating.
+2026-08-02 13:24:21 | INFO     | DIM_ARTIST: Inserting 34088 record(s)...
+2026-08-02 13:24:22 | INFO     | DIM_ARTIST: Successfully inserted 34088 record(s).
+2026-08-02 13:24:22 | INFO     | Artist Dimension loaded successfully.
+2026-08-02 13:24:22 | INFO     | ==================================================
+2026-08-02 13:24:22 | INFO     | Loading Release Dimension
+2026-08-02 13:24:22 | INFO     | ==================================================
+2026-08-02 13:24:24 | INFO     | DIM_RELEASE: No records require updating.
+2026-08-02 13:24:25 | INFO     | DIM_RELEASE: Inserting 48997 record(s)...
+2026-08-02 13:24:27 | INFO     | DIM_RELEASE: Successfully inserted 48997 record(s).
+2026-08-02 13:24:27 | INFO     | Release Dimension loaded successfully.
+2026-08-02 13:24:27 | INFO     | ==================================================
+2026-08-02 13:24:27 | INFO     | Loading Recording Dimension
+2026-08-02 13:24:27 | INFO     | ==================================================
+2026-08-02 13:24:28 | INFO     | DIM_RECORDING: No records require updating.
+2026-08-02 13:24:30 | INFO     | DIM_RECORDING: Inserting 168335 record(s)...
+2026-08-02 13:24:34 | INFO     | DIM_RECORDING: Successfully inserted 168335 record(s).
+2026-08-02 13:24:34 | INFO     | Recording Dimension loaded successfully.
+2026-08-02 13:24:34 | INFO     | ETL Pipeline for dimensions completed successfully.
+2026-08-02 13:24:34 | INFO     | Database connection closed.
+2026-08-02 13:24:34 | INFO     | ================================================================================
+2026-08-02 13:24:34 | INFO     | ListenBrainz ETL Pipeline Finished
+2026-08-02 13:24:34 | INFO     | ================================================================================

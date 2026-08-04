@@ -1,0 +1,53 @@
+2026-08-02 02:20:31 | INFO     | ============================================================
+2026-08-02 02:20:31 | INFO     | ListenBrainz ETL Started
+2026-08-02 02:20:31 | INFO     | ============================================================
+2026-08-02 02:20:31 | INFO     | ================================================================================
+2026-08-02 02:20:31 | INFO     | ListenBrainz ETL Pipeline Started
+2026-08-02 02:20:31 | INFO     | ================================================================================
+2026-08-02 02:20:31 | INFO     | Configuration loaded successfully.
+2026-08-02 02:20:31 | INFO     | Database Path   : db/ListenBrainz.db
+2026-08-02 02:20:31 | INFO     | Bronze Schema   : BRZ_100_SL
+2026-08-02 02:20:31 | INFO     | Silver Schema   : SIL_200_CL
+2026-08-02 02:20:31 | INFO     | Gold Schema     : GLD_300_PL
+2026-08-02 02:20:31 | INFO     | Audit Schema    : AUD_900_AUD
+2026-08-02 02:20:31 | INFO     | Incoming Folder : files/incoming
+2026-08-02 02:20:31 | INFO     | Archive Folder  : files/archive
+2026-08-02 02:20:31 | INFO     | Error Folder    : files/error
+2026-08-02 02:20:31 | INFO     | Connecting to DuckDB database : db\ListenBrainz.db
+2026-08-02 02:20:31 | INFO     | Database connection established successfully.
+2026-08-02 02:20:31 | INFO     | ETL Load ID : 20260802022031
+2026-08-02 02:20:31 | INFO     | Creating database schemas...
+2026-08-02 02:20:31 | INFO     | Schemas created successfully.
+2026-08-02 02:20:31 | INFO     | Creating Source Layer tables...
+2026-08-02 02:20:31 | INFO     | Source Layer tables created successfully.
+2026-08-02 02:20:31 | INFO     | Creating Silver Layer tables...
+2026-08-02 02:20:31 | INFO     | Silver Layer tables created successfully.
+2026-08-02 02:20:31 | INFO     | Creating Audit tables...
+2026-08-02 02:20:31 | INFO     | Audit Layer tables created successfully.
+2026-08-02 02:20:31 | INFO     | ================================================================================
+2026-08-02 02:20:31 | INFO     | Processing File : dataset.txt
+2026-08-02 02:20:31 | INFO     | Load ID : 20260802022031
+2026-08-02 02:20:31 | INFO     | Loading 'dataset.txt' into BRZ_100_SL.CSV_LISTENBRAINZ_RAW
+2026-08-02 02:20:33 | INFO     | Rows Loaded : 333,034
+2026-08-02 02:20:33 | INFO     | Moved 'dataset.txt' to archive folder.
+2026-08-02 02:20:33 | INFO     | Source Layer load completed successfully.
+2026-08-02 02:20:33 | INFO     | ETL Pipeline for raw data loading completed successfully.
+2026-08-02 02:20:33 | INFO     | ==================================================
+2026-08-02 02:20:33 | INFO     | Loading Date Dimension
+2026-08-02 02:20:33 | INFO     | ==================================================
+2026-08-02 02:20:33 | INFO     | DIM_DATE: Inserting 14976 record(s)...
+2026-08-02 02:20:33 | ERROR    | ETL Pipeline failed.
+Traceback (most recent call last):
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\run_ListenBrainz_main.py", line 80, in main
+    load_dim_date(
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\src\silver\load_dim_date.py", line 141, in load_dim_date
+    execute_insert(
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\src\common\etl_utils.py", line 22, in execute_insert
+    conn.execute(sql, params)
+_duckdb.BinderException: Binder Error: Table "DIM_DATE" does not have a column with name "DAY_OF_WEEK"
+
+Did you mean: "day_of_month"
+2026-08-02 02:20:33 | INFO     | Database connection closed.
+2026-08-02 02:20:33 | INFO     | ================================================================================
+2026-08-02 02:20:33 | INFO     | ListenBrainz ETL Pipeline Finished
+2026-08-02 02:20:33 | INFO     | ================================================================================

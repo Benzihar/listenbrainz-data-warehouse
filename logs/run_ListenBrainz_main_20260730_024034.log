@@ -1,0 +1,57 @@
+2026-07-30 02:40:34 | INFO     | ============================================================
+2026-07-30 02:40:34 | INFO     | ListenBrainz ETL Started
+2026-07-30 02:40:34 | INFO     | ============================================================
+2026-07-30 02:40:34 | INFO     | ================================================================================
+2026-07-30 02:40:34 | INFO     | ListenBrainz ETL Pipeline Started
+2026-07-30 02:40:34 | INFO     | ================================================================================
+2026-07-30 02:40:34 | INFO     | Configuration loaded successfully.
+2026-07-30 02:40:34 | INFO     | Database Path   : db/ListenBrainz.db
+2026-07-30 02:40:34 | INFO     | Bronze Schema   : BRZ_100_SL
+2026-07-30 02:40:34 | INFO     | Silver Schema   : SIL_200_CL
+2026-07-30 02:40:34 | INFO     | Gold Schema     : GLD_300_PL
+2026-07-30 02:40:34 | INFO     | Incoming Folder : files/incoming
+2026-07-30 02:40:34 | INFO     | Archive Folder  : files/archive
+2026-07-30 02:40:34 | INFO     | Error Folder    : files/error
+2026-07-30 02:40:34 | INFO     | Connecting to DuckDB database : db\ListenBrainz.db
+2026-07-30 02:40:34 | INFO     | Database connection established successfully.
+2026-07-30 02:40:34 | INFO     | Creating database schemas...
+2026-07-30 02:40:34 | INFO     | Schemas created successfully.
+2026-07-30 02:40:34 | INFO     | Creating Source Layer tables...
+2026-07-30 02:40:34 | INFO     | Source Layer tables created successfully.
+2026-07-30 02:40:34 | INFO     | Processing file : dataset.txt
+2026-07-30 02:40:34 | INFO     | Load ID : 20260730101
+2026-07-30 02:41:28 | INFO     | Inserted 10,000 records...
+2026-07-30 02:42:22 | INFO     | Inserted 20,000 records...
+2026-07-30 02:43:17 | INFO     | Inserted 30,000 records...
+2026-07-30 02:44:11 | INFO     | Inserted 40,000 records...
+2026-07-30 02:45:07 | INFO     | Inserted 50,000 records...
+2026-07-30 02:46:05 | INFO     | Inserted 60,000 records...
+2026-07-30 02:47:19 | INFO     | Inserted 70,000 records...
+2026-07-30 02:48:34 | INFO     | Inserted 80,000 records...
+2026-07-30 02:49:48 | INFO     | Inserted 90,000 records...
+2026-07-30 02:51:01 | INFO     | Inserted 100,000 records...
+2026-07-30 02:51:54 | ERROR    | Error while processing 'dataset.txt'.
+KeyboardInterrupt
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\src\br_extract_lb_music.py", line 89, in load_source_layer
+    conn.executemany(
+RuntimeError: Query interrupted
+2026-07-30 02:51:54 | INFO     | Moved 'dataset.txt' to error folder.
+2026-07-30 02:51:54 | ERROR    | ETL Pipeline failed.
+KeyboardInterrupt
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\run_ListenBrainz_main.py", line 44, in main
+    load_source_layer(conn, logger)
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\src\br_extract_lb_music.py", line 89, in load_source_layer
+    conn.executemany(
+RuntimeError: Query interrupted
+2026-07-30 02:51:54 | INFO     | Database connection closed.
+2026-07-30 02:51:54 | INFO     | ================================================================================
+2026-07-30 02:51:54 | INFO     | ListenBrainz ETL Pipeline Finished
+2026-07-30 02:51:54 | INFO     | ================================================================================

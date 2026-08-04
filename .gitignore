@@ -16,10 +16,6 @@ env/
 .DS_Store
 Thumbs.db
 
-# Logs
-logs/
-*.log
-
 # Python cache
 .pytest_cache/
 .mypy_cache/

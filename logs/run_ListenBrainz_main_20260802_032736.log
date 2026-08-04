@@ -1,0 +1,55 @@
+2026-08-02 03:27:36 | INFO     | ============================================================
+2026-08-02 03:27:36 | INFO     | ListenBrainz ETL Started
+2026-08-02 03:27:36 | INFO     | ============================================================
+2026-08-02 03:27:36 | INFO     | ================================================================================
+2026-08-02 03:27:36 | INFO     | ListenBrainz ETL Pipeline Started
+2026-08-02 03:27:36 | INFO     | ================================================================================
+2026-08-02 03:27:36 | INFO     | Configuration loaded successfully.
+2026-08-02 03:27:36 | INFO     | Database Path   : db/ListenBrainz.db
+2026-08-02 03:27:36 | INFO     | Bronze Schema   : BRZ_100_SL
+2026-08-02 03:27:36 | INFO     | Silver Schema   : SIL_200_CL
+2026-08-02 03:27:36 | INFO     | Gold Schema     : GLD_300_PL
+2026-08-02 03:27:36 | INFO     | Audit Schema    : AUD_900_AUD
+2026-08-02 03:27:36 | INFO     | Incoming Folder : files/incoming
+2026-08-02 03:27:36 | INFO     | Archive Folder  : files/archive
+2026-08-02 03:27:36 | INFO     | Error Folder    : files/error
+2026-08-02 03:27:36 | INFO     | Connecting to DuckDB database : db\ListenBrainz.db
+2026-08-02 03:27:36 | INFO     | Database connection established successfully.
+2026-08-02 03:27:36 | INFO     | ETL Load ID : 20260802032736
+2026-08-02 03:27:36 | INFO     | Creating database schemas...
+2026-08-02 03:27:36 | INFO     | Schemas created successfully.
+2026-08-02 03:27:36 | INFO     | Creating Source Layer tables...
+2026-08-02 03:27:36 | INFO     | Source Layer tables created successfully.
+2026-08-02 03:27:36 | INFO     | Creating Silver Layer tables...
+2026-08-02 03:27:36 | INFO     | Silver Layer tables created successfully.
+2026-08-02 03:27:36 | INFO     | Creating Audit tables...
+2026-08-02 03:27:36 | INFO     | Audit Layer tables created successfully.
+2026-08-02 03:27:36 | INFO     | ================================================================================
+2026-08-02 03:27:36 | INFO     | Processing File : dataset.txt
+2026-08-02 03:27:36 | INFO     | Load ID : 20260802032736
+2026-08-02 03:27:36 | INFO     | Loading 'dataset.txt' into BRZ_100_SL.CSV_LISTENBRAINZ_RAW
+2026-08-02 03:27:38 | INFO     | Rows Loaded : 333,034
+2026-08-02 03:27:38 | INFO     | Moved 'dataset.txt' to archive folder.
+2026-08-02 03:27:38 | INFO     | Source Layer load completed successfully.
+2026-08-02 03:27:38 | INFO     | ETL Pipeline for raw data loading completed successfully.
+2026-08-02 03:27:38 | INFO     | ==================================================
+2026-08-02 03:27:38 | INFO     | Loading Date Dimension
+2026-08-02 03:27:38 | INFO     | ==================================================
+2026-08-02 03:27:38 | INFO     | DIM_DATE: No new records found.
+2026-08-02 03:27:38 | INFO     | Date Dimension loaded successfully.
+2026-08-02 03:27:38 | INFO     | ==================================================
+2026-08-02 03:27:38 | INFO     | Loading User Dimension
+2026-08-02 03:27:38 | INFO     | ==================================================
+2026-08-02 03:27:38 | INFO     | DIM_USER: No new records found.
+2026-08-02 03:27:38 | INFO     | User Dimension loaded successfully.
+2026-08-02 03:27:38 | INFO     | ==================================================
+2026-08-02 03:27:38 | INFO     | Loading Artist Dimension
+2026-08-02 03:27:38 | INFO     | ==================================================
+2026-08-02 03:27:39 | INFO     | DIM_ARTIST: No records require updating.
+2026-08-02 03:27:40 | INFO     | DIM_ARTIST: No new records found.
+2026-08-02 03:27:40 | INFO     | Artist Dimension loaded successfully.
+2026-08-02 03:27:40 | INFO     | ETL Pipeline for dimensions completed successfully.
+2026-08-02 03:27:40 | INFO     | Database connection closed.
+2026-08-02 03:27:40 | INFO     | ================================================================================
+2026-08-02 03:27:40 | INFO     | ListenBrainz ETL Pipeline Finished
+2026-08-02 03:27:40 | INFO     | ================================================================================

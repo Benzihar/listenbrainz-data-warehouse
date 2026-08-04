@@ -1,0 +1,42 @@
+2026-07-31 04:39:51 | INFO     | ============================================================
+2026-07-31 04:39:51 | INFO     | ListenBrainz ETL Started
+2026-07-31 04:39:51 | INFO     | ============================================================
+2026-07-31 04:39:51 | INFO     | ================================================================================
+2026-07-31 04:39:51 | INFO     | ListenBrainz ETL Pipeline Started
+2026-07-31 04:39:51 | INFO     | ================================================================================
+2026-07-31 04:39:51 | INFO     | Configuration loaded successfully.
+2026-07-31 04:39:51 | INFO     | Database Path   : db/ListenBrainz.db
+2026-07-31 04:39:51 | INFO     | Bronze Schema   : BRZ_100_SL
+2026-07-31 04:39:51 | INFO     | Silver Schema   : SIL_200_CL
+2026-07-31 04:39:51 | INFO     | Gold Schema     : GLD_300_PL
+2026-07-31 04:39:51 | INFO     | Incoming Folder : files/incoming
+2026-07-31 04:39:51 | INFO     | Archive Folder  : files/archive
+2026-07-31 04:39:51 | INFO     | Error Folder    : files/error
+2026-07-31 04:39:51 | INFO     | Connecting to DuckDB database : db\ListenBrainz.db
+2026-07-31 04:39:51 | INFO     | Database connection established successfully.
+2026-07-31 04:39:51 | INFO     | Creating database schemas...
+2026-07-31 04:39:51 | INFO     | Schemas created successfully.
+2026-07-31 04:39:51 | INFO     | Creating Source Layer tables...
+2026-07-31 04:39:51 | INFO     | Source Layer tables created successfully.
+2026-07-31 04:39:51 | INFO     | Creating Silver Layer tables...
+2026-07-31 04:39:51 | INFO     | Silver Layer tables created successfully.
+2026-07-31 04:39:51 | WARNING  | No source files found in incoming folder.
+2026-07-31 04:39:51 | INFO     | ETL Pipeline for raw data loading completed successfully.
+2026-07-31 04:39:51 | INFO     | ETL Load ID : 20260731043951
+2026-07-31 04:39:51 | INFO     | ==================================================
+2026-07-31 04:39:51 | INFO     | Loading User Dimension
+2026-07-31 04:39:51 | INFO     | ==================================================
+2026-07-31 04:39:51 | INFO     | DIM_USER: Inserting 202 record(s)...
+2026-07-31 04:39:52 | ERROR    | ETL Pipeline failed.
+Traceback (most recent call last):
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\run_ListenBrainz_main.py", line 59, in main
+    load_dim_user(conn, load_id, logger)
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\src\silver\load_dim_user.py", line 78, in load_dim_user
+    execute_insert(
+  File "C:\Ben_Work\Scalable_Capital_Assignment\ListenBrainz_Assignment\src\common\etl_utils.py", line 22, in execute_insert
+    conn.execute(sql, params)
+_duckdb.ConstraintException: Constraint Error: NOT NULL constraint failed: DIM_USER.user_key
+2026-07-31 04:39:52 | INFO     | Database connection closed.
+2026-07-31 04:39:52 | INFO     | ================================================================================
+2026-07-31 04:39:52 | INFO     | ListenBrainz ETL Pipeline Finished
+2026-07-31 04:39:52 | INFO     | ================================================================================
