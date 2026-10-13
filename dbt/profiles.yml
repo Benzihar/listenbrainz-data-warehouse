@@ -1,0 +1,7 @@
+listenbrainz:
+  target: test
+  outputs:
+    test:
+      type: duckdb
+      path: "target/listenbrainz_test.duckdb"
+      schema: main

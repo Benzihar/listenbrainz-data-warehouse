@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: brz_listenbrainz_raw
+    description: Raw ListenBrainz events with the same lineage columns as the Python Bronze loader.
+    columns:
+      - name: record_number
+        tests: [not_null]
+      - name: raw_json
+        tests: [not_null]
+      - name: file_name
+        tests: [not_null]
+      - name: load_id
+        tests: [not_null]
+      - name: load_timestamp
+        tests: [not_null]
