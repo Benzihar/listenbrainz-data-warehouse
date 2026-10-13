@@ -1,0 +1,22 @@
+name: dbt-ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  dbt-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dbt
+        run: pip install dbt-core==1.12.5 dbt-duckdb==1.11.0
+      - name: Build and test
+        working-directory: dbt
+        run: dbt build --target test --profiles-dir . --full-refresh
