@@ -34,3 +34,18 @@ db/*.wal
 # Large datasets
 files/archive/*.txt
 files/archive/*.json
+# Logs
+logs/*.log
+
+# DuckDB (any location)
+*.duckdb
+*.duckdb.wal
+
+# dbt
+target/
+dbt_packages/
+dbt/logs/
+
+# Source data (never commit)
+files/incoming/*
+!files/incoming/.gitkeep
