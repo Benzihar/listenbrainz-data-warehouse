@@ -45,6 +45,7 @@ logs/*.log
 target/
 dbt_packages/
 dbt/logs/
+dbt/.user.yml
 
 # Source data (never commit)
 files/incoming/*
