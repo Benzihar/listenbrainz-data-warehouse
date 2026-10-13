@@ -779,6 +779,17 @@ The existing semantic layer provides a strong foundation for integrating Busines
 
 The solution has been developed using **Python** and **DuckDB**, making it platform-independent and executable on **Windows**, **macOS**, and **Linux** without requiring any code changes.
 
+### dbt Migration (Incremental)
+
+The dbt project is in `dbt/`. Its `test` target writes only to the disposable `dbt/target/listenbrainz_test.duckdb` database. Run it from the project directory with:
+
+```bash
+cd dbt
+dbt build --target test --profiles-dir .
+```
+
+The first dbt model loads raw NDJSON objects from `files/incoming/*.txt` into the Bronze `CSV_LISTENBRAINZ_RAW` table, preserving its raw JSON and lineage columns. To use another input glob, pass `--vars '{"source_glob": "../files/incoming/*.ndjson"}'` to the command. The existing Python ETL remains the operational pipeline while migration proceeds.
+
 ### Prerequisites
 
 Ensure the following software is installed:
